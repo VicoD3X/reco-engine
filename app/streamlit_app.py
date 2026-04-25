@@ -1,12 +1,13 @@
 # streamlit_app.py
 # ------------------------------------------------------------
-# MyContent — MVP Recommandation
+# Article Recommender — MVP Recommandation
 # Client Streamlit consommant une API Azure Functions
 # ------------------------------------------------------------
 
 import time
-import requests
+
 import pandas as pd
+import requests
 import streamlit as st
 
 
@@ -17,11 +18,11 @@ API_URL = "https://p10oc-recommender.azurewebsites.net/api/recommend"
 DATA_DIR = "data"
 
 st.set_page_config(
-    page_title="MyContent — MVP Recommandation",
-    layout="centered"
+    page_title="Article Recommender — MVP Recommandation",
+    layout="centered",
 )
 
-st.title("MyContent — MVP de recommandation d’articles")
+st.title("Article Recommender — MVP de recommandation d’articles")
 st.write(
     "Cette application Streamlit consomme une API Azure Functions exposant "
     "un moteur de recommandation d’articles. Aucun calcul de machine learning "
@@ -38,7 +39,7 @@ def load_data():
     articles = pd.read_csv(f"{DATA_DIR}/articles_metadata.csv")
     clicks = pd.read_csv(f"{DATA_DIR}/clicks_sample.csv")
 
-    # Liste des utilisateurs disponibles (dataset local)
+    # Liste des utilisateurs disponibles dans l’échantillon local.
     user_ids = sorted(
         clicks["user_id"]
         .dropna()
@@ -47,7 +48,7 @@ def load_data():
         .tolist()
     )
 
-    # Articles les plus populaires (baseline simple)
+    # Articles les plus populaires, utilisés comme baseline simple.
     top_popular = (
         clicks["click_article_id"]
         .dropna()
@@ -72,7 +73,7 @@ k = st.slider("Nombre d’articles recommandés", 1, 10, 5)
 
 show_raw = st.checkbox(
     "Afficher la réponse JSON brute (debug)",
-    value=False
+    value=False,
 )
 
 
@@ -80,12 +81,12 @@ show_raw = st.checkbox(
 # Appel de l’API Azure
 # =========================
 if st.button("Générer les recommandations"):
-    with st.spinner("Appel du moteur de recommandation Azure…"):
+    with st.spinner("Appel du moteur de recommandation Azure..."):
         t0 = time.perf_counter()
         response = requests.get(
             API_URL,
             params={"user_id": int(user_id), "k": int(k)},
-            timeout=10
+            timeout=10,
         )
         latency = time.perf_counter() - t0
 
@@ -113,14 +114,14 @@ if st.button("Générer les recommandations"):
         st.warning("Aucune recommandation retournée.")
         st.stop()
 
-    # Recommandations personnalisées
+    # Recommandations personnalisées.
     df_recs = (
         pd.DataFrame({"article_id": recs})
         .merge(articles, on="article_id", how="left")
     )
     st.dataframe(df_recs, use_container_width=True)
 
-    # Baseline popularité (comparaison)
+    # Baseline popularité pour comparaison.
     st.subheader("Baseline : popularité globale")
     df_base = (
         pd.DataFrame({"article_id": top_popular[:int(k)]})

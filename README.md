@@ -78,6 +78,12 @@ Installer les dépendances de l’interface Streamlit :
 pip install -r requirements.txt
 ```
 
+Lancer l’interface Streamlit :
+
+```bash
+streamlit run app/streamlit_app.py
+```
+
 Pour tester le moteur localement, installer aussi les dépendances de l’Azure Function :
 
 ```bash
@@ -88,6 +94,20 @@ Le moteur local attend un fichier `data/articles_embeddings_pca50.joblib`. Ce fi
 
 ```bash
 py -m src.run_local_test
+```
+
+## Lancer les tests
+
+Installer les dépendances nécessaires aux tests :
+
+```bash
+pip install -r requirements.txt -r azure_function/requirements.txt -r requirements-dev.txt
+```
+
+Lancer la suite de tests :
+
+```bash
+pytest
 ```
 
 ## Utilisation de l’API

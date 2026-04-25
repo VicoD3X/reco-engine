@@ -165,10 +165,10 @@ def recommend(req: func.HttpRequest) -> func.HttpResponse:
             mimetype="application/json",
         )
 
-    except Exception as e:
+    except Exception:
         logging.exception("Recommendation error")
         return func.HttpResponse(
-            json.dumps({"error": str(e)}),
+            json.dumps({"error": "Internal recommendation service error"}),
             status_code=500,
             mimetype="application/json",
         )
