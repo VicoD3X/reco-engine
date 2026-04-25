@@ -7,7 +7,7 @@ __pycache__/
 *.so
 
 # =====================================================
-# Environnements virtuels
+# Virtual environments
 # =====================================================
 .venv/
 venv/
@@ -40,7 +40,6 @@ htmlcov/
 # Jupyter
 # =====================================================
 .ipynb_checkpoints/
-# IMPORTANT : on versionne les notebooks .ipynb
 
 # =====================================================
 # OS / IDE
@@ -50,7 +49,7 @@ Thumbs.db
 .vscode/
 
 # =====================================================
-# Secrets / configuration locale
+# Local secrets / configuration
 # =====================================================
 .env
 .env.*
@@ -58,7 +57,7 @@ Thumbs.db
 *.pem
 
 # =====================================================
-# Azure Functions (local uniquement)
+# Azure Functions local files
 # =====================================================
 azure_function/local.settings.json
 azure_function/bin/
@@ -66,7 +65,7 @@ azure_function/obj/
 appsettings.json
 
 # =====================================================
-# Azurite (émulateur Azure local)
+# Azurite local emulator
 # =====================================================
 __blobstorage__/
 __queuestorage__/
@@ -74,15 +73,13 @@ __azurite_db*__.json
 .python_packages/
 
 # =====================================================
-# Fichiers lourds générés (optionnel)
+# Office temporary files
 # =====================================================
-# Si besoin, commenter ces lignes pour versionner
-# *.joblib
-# *.pkl
-# *.pickle
+~$*
 
-
-# Fichiers de modèles / embeddings volumineux
+# =====================================================
+# Large generated model artifacts
+# =====================================================
 *.pickle
 *.pkl
 *.joblib
