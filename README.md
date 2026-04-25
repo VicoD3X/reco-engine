@@ -1,5 +1,12 @@
 # Article Recommender — Azure Functions & Streamlit
 
+![Python](https://img.shields.io/badge/Python-3.x-3776AB?style=flat-square&logo=python&logoColor=white)
+![Streamlit](https://img.shields.io/badge/Streamlit-app-FF4B4B?style=flat-square&logo=streamlit&logoColor=white)
+![Azure Functions](https://img.shields.io/badge/Azure%20Functions-API-0062AD?style=flat-square&logo=azurefunctions&logoColor=white)
+![Pandas](https://img.shields.io/badge/Pandas-data-150458?style=flat-square&logo=pandas&logoColor=white)
+![Pytest](https://img.shields.io/badge/tests-pytest-0A9EDC?style=flat-square&logo=pytest&logoColor=white)
+![Status](https://img.shields.io/badge/status-MVP-2EA44F?style=flat-square)
+
 MVP de recommandation d’articles combinant un moteur content-based, une API Azure Functions et une interface Streamlit de démonstration.
 
 ## Présentation du projet
