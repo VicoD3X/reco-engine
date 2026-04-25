@@ -4,6 +4,7 @@
 # Client Streamlit consommant une API Azure Functions
 # ------------------------------------------------------------
 
+import os
 import time
 
 import pandas as pd
@@ -14,7 +15,7 @@ import streamlit as st
 # =========================
 # Configuration générale
 # =========================
-API_URL = "https://p10oc-recommender.azurewebsites.net/api/recommend"
+API_URL = os.environ.get("RECOMMENDER_API_URL", "").strip()
 DATA_DIR = "data"
 
 st.set_page_config(
@@ -70,6 +71,11 @@ articles, clicks, user_ids, top_popular = load_data()
 # =========================
 user_id = st.selectbox("Identifiant utilisateur", user_ids)
 k = st.slider("Nombre d’articles recommandés", 1, 10, 5)
+api_url = st.text_input(
+    "URL de l’API",
+    value=API_URL,
+    placeholder="https://<function-app>.azurewebsites.net/api/recommend",
+)
 
 show_raw = st.checkbox(
     "Afficher la réponse JSON brute (debug)",
@@ -81,10 +87,14 @@ show_raw = st.checkbox(
 # Appel de l’API Azure
 # =========================
 if st.button("Générer les recommandations"):
+    if not api_url:
+        st.error("Renseigner l’URL de l’API ou définir la variable RECOMMENDER_API_URL.")
+        st.stop()
+
     with st.spinner("Appel du moteur de recommandation Azure..."):
         t0 = time.perf_counter()
         response = requests.get(
-            API_URL,
+            api_url,
             params={"user_id": int(user_id), "k": int(k)},
             timeout=10,
         )

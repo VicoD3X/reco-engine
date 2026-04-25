@@ -78,6 +78,12 @@ Installer les dépendances de l’interface Streamlit :
 pip install -r requirements.txt
 ```
 
+Définir l’URL de l’API Azure Functions :
+
+```powershell
+$env:RECOMMENDER_API_URL = "https://<function-app>.azurewebsites.net/api/recommend"
+```
+
 Lancer l’interface Streamlit :
 
 ```bash
@@ -112,10 +118,10 @@ pytest
 
 ## Utilisation de l’API
 
-Endpoint de démonstration :
+Endpoint attendu :
 
 ```text
-https://p10oc-recommender.azurewebsites.net/api/recommend
+https://<function-app>.azurewebsites.net/api/recommend
 ```
 
 Exemple d’appel :
