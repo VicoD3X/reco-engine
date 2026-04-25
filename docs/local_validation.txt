@@ -1,25 +1,25 @@
-Local recommendation engine validation
+Validation locale du moteur de recommandation
 
-Sample output:
+Exemple de sortie :
 
 0 -> [157519, 157944, 159495, 156690, 162857]
 1 -> [95797, 90583, 236005, 231234, 37095]
 2 -> [25856, 30693, 32503, 31139, 31325]
 999999 -> [119592, 96663, 108854, 284847, 235840]
 
-Output format:
+Format de sortie :
 
-- Each line follows this format: <user_id> -> [a1, a2, a3, a4, a5].
-- <user_id> is the requested user identifier.
-- [a1..a5] is the ordered list of recommended article IDs.
+- Chaque ligne suit le format : <user_id> -> [a1, a2, a3, a4, a5].
+- <user_id> correspond à l’identifiant utilisateur demandé.
+- [a1..a5] correspond à la liste ordonnée des identifiants d’articles recommandés.
 
-Interpretation:
+Interprétation :
 
-- Users 0, 1 and 2 exist in the click history. The system generates personalized recommendations from articles previously viewed by each user.
-- User 999999 does not exist in the sample data. The system falls back to globally popular articles.
+- Les utilisateurs 0, 1 et 2 existent dans l’historique de clics. Le système génère donc des recommandations personnalisées à partir des articles déjà consultés.
+- L’utilisateur 999999 n’existe pas dans l’échantillon de données. Le système bascule sur les articles les plus populaires.
 
-Validated behavior:
+Comportements validés :
 
-- The engine returns 5 recommendations.
-- Personalization works when history is available.
-- The cold-start fallback keeps the system robust when no user history exists.
+- Le moteur retourne 5 recommandations.
+- La personnalisation fonctionne lorsqu’un historique est disponible.
+- Le fallback cold-start permet au système de rester robuste lorsqu’aucun historique utilisateur n’est disponible.

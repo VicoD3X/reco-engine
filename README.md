@@ -1,109 +1,110 @@
-# Article Recommender - Azure Functions & Streamlit
+# Article Recommender — Azure Functions & Streamlit
 
-End-to-end article recommendation MVP with content-based filtering, Azure Functions API and Streamlit frontend.
+MVP de recommandation d’articles combinant un moteur content-based, une API Azure Functions et une interface Streamlit de démonstration.
 
-## Overview
+## Présentation du projet
 
-This project delivers a deployable recommendation MVP for a content platform. It exposes an HTTP API that returns article recommendations for a given user and provides a Streamlit interface to test the recommender from a simple front end.
+Ce dépôt présente un système de recommandation d’articles de bout en bout. Le projet contient un moteur de recommandation basé sur les contenus consultés par les utilisateurs, une API HTTP déployable avec Azure Functions et une interface Streamlit permettant de tester les recommandations.
 
-The repository focuses on the full product path of a machine learning feature: data preparation, recommendation logic, API deployment, frontend consumption and validation against a popularity baseline.
+L’objectif n’est pas de présenter un produit production-ready, mais un MVP sérieux, lisible et suffisamment structuré pour montrer une démarche de Data Scientist / AI Engineer junior : préparation des données, logique de recommandation, exposition d’un service d’inférence et validation des comportements principaux.
 
-## Business objective
+## Objectif métier
 
-The goal is to help users discover relevant articles based on their reading history. For known users, the system generates personalized recommendations from previously clicked articles. For users without history, it falls back to globally popular articles so the service still returns useful results.
+Le besoin métier est de proposer des articles pertinents à un utilisateur à partir de son historique de clics. Lorsqu’un utilisateur possède déjà un historique, le système construit un profil utilisateur et recommande des articles proches de ses intérêts.
 
-This makes the MVP usable in two important cases:
-
-- Personalized recommendations for users with existing click history.
-- Cold-start recommendations for unknown or new users.
+Le projet couvre aussi le cas cold-start : lorsqu’un utilisateur est inconnu ou ne possède pas d’historique exploitable, le moteur renvoie une sélection d’articles populaires afin de conserver une réponse utile.
 
 ## Architecture
 
 ```text
-Streamlit frontend
+Interface Streamlit
         |
         v
-Azure Functions HTTP API
+API HTTP Azure Functions
         |
         v
-Recommendation engine
+Moteur de recommandation
         |
         v
-Click history + article embeddings from Azure Blob Storage
+Historique de clics + embeddings d’articles
 ```
 
-The Streamlit app is intentionally lightweight: it calls the deployed API, displays the returned recommendations and compares them with a popularity baseline. The machine learning logic lives behind the Azure Functions API.
+La logique de recommandation est isolée côté API. L’interface Streamlit reste volontairement simple : elle sélectionne un utilisateur, appelle l’API déployée, affiche les recommandations et permet de comparer le résultat à une baseline de popularité.
 
-## Recommendation approach
+Pour le déploiement, les assets nécessaires à l’inférence sont chargés depuis Azure Blob Storage.
 
-The recommender uses a content-based filtering strategy:
+## Approche de recommandation
 
-- Article embeddings are reduced with PCA to keep inference lightweight.
-- A user profile is computed from the average embedding of articles previously clicked by the user.
-- Cosine similarity is used to rank candidate articles.
-- Already clicked articles are filtered out of the final recommendations.
-- A popularity fallback handles users with no available history.
+Le moteur utilise une approche content-based :
 
-The API response includes a `mode` field to distinguish personalized recommendations from cold-start fallback results.
+- les articles sont représentés par des embeddings réduits en 50 dimensions via PCA ;
+- le profil utilisateur est construit en moyennant les embeddings des articles déjà consultés ;
+- les articles candidats sont classés par similarité cosinus avec le profil utilisateur ;
+- les articles déjà cliqués sont exclus des recommandations finales ;
+- un fallback par popularité est utilisé lorsqu’aucun historique utilisateur n’est disponible.
 
-## Repository structure
+La réponse de l’API contient un champ `mode` permettant de distinguer une recommandation personnalisée (`content_based_pca50`) d’un fallback cold-start (`cold_start_popularity`).
+
+## Structure du dépôt
 
 ```text
 .
-|-- app/                 # Streamlit frontend
-|-- azure_function/      # Azure Functions API
-|-- data/                # Demo sample data and local artifact notes
-|-- docs/                # Presentation support and validation material
-|-- notebooks/           # Exploration notebook
-|-- src/                 # Local recommendation module
-|-- requirements.txt     # Streamlit app dependencies
-|-- requirements-dev.txt # Development dependencies
+|-- app/                 # Interface Streamlit
+|-- azure_function/      # API HTTP Azure Functions
+|-- data/                # Données d’exemple et documentation des assets
+|-- docs/                # Supports de présentation et validation locale
+|-- notebooks/           # Notebook d’exploration
+|-- src/                 # Moteur de recommandation local
+|-- tests/               # Tests unitaires du moteur de recommandation
+|-- requirements.txt     # Dépendances de l’application Streamlit
+|-- requirements-dev.txt # Outils de développement
 `-- README.md
 ```
 
-## Local setup
+Les supports de présentation sont rangés dans `docs/` afin de garder la racine du dépôt lisible.
 
-Create and activate a virtual environment:
+## Installation locale
+
+Créer puis activer un environnement virtuel :
 
 ```bash
 py -m venv .venv
 .venv\Scripts\activate
 ```
 
-Install the Streamlit app dependencies:
+Installer les dépendances de l’interface Streamlit :
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Run the frontend:
-
-```bash
-streamlit run app/streamlit_app.py
-```
-
-For local tests of the recommendation engine, first place `articles_embeddings_pca50.joblib` in `data/`, then install the API/model dependencies:
+Pour tester le moteur localement, installer aussi les dépendances de l’Azure Function :
 
 ```bash
 pip install -r azure_function/requirements.txt
+```
+
+Le moteur local attend un fichier `data/articles_embeddings_pca50.joblib`. Ce fichier n’est pas versionné dans le dépôt principal : il doit être généré ou récupéré avant de lancer le script local.
+
+```bash
 py -m src.run_local_test
 ```
 
-## API usage
+## Utilisation de l’API
 
-Demo endpoint:
+Endpoint de démonstration :
 
 ```text
 https://p10oc-recommender.azurewebsites.net/api/recommend
 ```
 
-Example request:
+Exemple d’appel :
 
 ```http
 GET /api/recommend?user_id=0&k=5
 ```
 
-Example response:
+Exemple de réponse :
 
 ```json
 {
@@ -114,61 +115,56 @@ Example response:
 }
 ```
 
-Cold-start example:
+Pour un utilisateur inconnu :
 
 ```http
 GET /api/recommend?user_id=999999&k=5
 ```
 
-Expected behavior: the API returns recommendations with `mode` set to `cold_start_popularity`.
+Le comportement attendu est une réponse basée sur la popularité globale, avec le mode `cold_start_popularity`.
 
-## Streamlit demo
+## Interface Streamlit
 
-The Streamlit interface allows a user to:
+L’application Streamlit permet de :
 
-- Select a user ID from the local demo sample.
-- Choose the number of articles to recommend.
-- Call the deployed Azure Functions API.
-- Inspect the raw JSON response if needed.
-- Compare personalized recommendations with a popularity baseline.
+- sélectionner un identifiant utilisateur disponible dans l’échantillon local ;
+- choisir le nombre d’articles à recommander ;
+- appeler l’API Azure Functions déployée ;
+- afficher la réponse JSON brute si nécessaire ;
+- comparer les recommandations personnalisées à une baseline de popularité.
 
-## Data and artifacts
+L’interface dépend notamment de `data/articles_metadata.csv`, qui est bien présent dans le dépôt et contient les colonnes nécessaires à l’affichage des métadonnées d’articles.
 
-The original dataset is not fully versioned in this repository. The repository keeps a demo sample so the frontend can display article metadata and the recommendation workflow remains understandable.
+## Résultats et validation
 
-For deployment, model artifacts are loaded from Azure Blob Storage. The Azure Function expects these blobs:
+La validation du MVP couvre les comportements principaux :
 
-- `articles_embeddings_pca50.joblib`
-- `clicks_sample.csv`
+- le moteur retourne le nombre de recommandations demandé lorsque suffisamment de candidats sont disponibles ;
+- les utilisateurs connus reçoivent des recommandations personnalisées ;
+- les articles déjà consultés sont exclus des recommandations ;
+- les utilisateurs inconnus déclenchent le fallback par popularité ;
+- l’API renvoie une réponse JSON compacte et exploitable par l’interface.
 
-For more details, see [data/README.md](data/README.md).
+Des exemples de sorties locales sont disponibles dans `docs/local_validation.txt`.
 
-## Results and validation
+Des tests unitaires simples sont présents dans `tests/test_recommender.py` pour vérifier les comportements essentiels du moteur sans dépendre des fichiers d’artefacts complets.
 
-Project validation confirmed that:
+## Limites actuelles
 
-- The recommender returns the requested number of articles.
-- Known users receive personalized content-based recommendations.
-- Unknown users fall back to popular articles.
-- The API response keeps a compact JSON format suitable for frontend consumption.
+- Le projet reste un MVP et ne couvre pas tous les besoins d’un système de recommandation en production.
+- L’approche est content-based uniquement ; elle ne compare pas encore plusieurs familles d’algorithmes.
+- Les embeddings d’articles complets ne sont pas versionnés dans le dépôt.
+- L’API ne contient pas encore de couche d’authentification avancée.
+- Le frontend Streamlit sert à la démonstration et non à un usage produit final.
 
-Example local outputs are documented in [docs/local_validation.txt](docs/local_validation.txt).
+## Améliorations possibles
 
-## Limitations
+- Ajouter une gestion d’erreur plus sobre côté API, avec détails conservés uniquement dans les logs.
+- Comparer l’approche content-based à une approche collaborative ou hybride.
+- Ajouter une évaluation quantitative des recommandations.
+- Mettre en place une CI légère pour lancer les tests automatiquement.
+- Documenter la génération des embeddings PCA depuis les données sources.
 
-- The MVP uses a content-based approach only; it does not include collaborative filtering.
-- The deployed API currently focuses on inference and does not retrain embeddings automatically.
-- The local dataset is a demo sample, not the full production dataset.
-- The Streamlit app is a demonstration frontend rather than a production UI.
+## Contexte du projet
 
-## Next improvements
-
-- Add automated tests for cold start, recommendation count and exclusion of already clicked articles.
-- Hide raw exception details from API responses while keeping full errors in server logs.
-- Add CI checks for linting and tests.
-- Compare the content-based approach with collaborative filtering or hybrid methods.
-- Add monitoring around API latency and recommendation coverage.
-
-## Context
-
-This project was initially built as part of the OpenClassrooms Data Scientist path. The repository has been cleaned and documented as a portfolio project focused on machine learning deployment.
+Ce projet a été initialement développé dans le cadre d’un parcours professionnalisant en Data Science. Il a ensuite été nettoyé et restructuré pour servir de projet portfolio, avec une priorité donnée à la clarté, à la lisibilité du dépôt et à la capacité à expliquer les choix techniques.

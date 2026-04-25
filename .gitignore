@@ -7,7 +7,7 @@ __pycache__/
 *.so
 
 # =====================================================
-# Virtual environments
+# Environnements virtuels
 # =====================================================
 .venv/
 venv/
@@ -49,7 +49,7 @@ Thumbs.db
 .vscode/
 
 # =====================================================
-# Local secrets / configuration
+# Secrets / configuration locale
 # =====================================================
 .env
 .env.*
@@ -57,7 +57,7 @@ Thumbs.db
 *.pem
 
 # =====================================================
-# Azure Functions local files
+# Fichiers locaux Azure Functions
 # =====================================================
 azure_function/local.settings.json
 azure_function/bin/
@@ -65,7 +65,7 @@ azure_function/obj/
 appsettings.json
 
 # =====================================================
-# Azurite local emulator
+# Emulateur local Azurite
 # =====================================================
 __blobstorage__/
 __queuestorage__/
@@ -73,12 +73,12 @@ __azurite_db*__.json
 .python_packages/
 
 # =====================================================
-# Office temporary files
+# Fichiers temporaires Office
 # =====================================================
 ~$*
 
 # =====================================================
-# Large generated model artifacts
+# Artefacts de modeles generes volumineux
 # =====================================================
 *.pickle
 *.pkl
